@@ -1,5 +1,10 @@
-import { Stack } from "expo-router";
+import { SessionProvider } from "@/providers/auth-provider";
+import { Slot } from "expo-router";
 
 export default function RootLayout() {
-  return <Stack />;
+  return (
+    <SessionProvider>
+      <Slot />
+    </SessionProvider>
+  );
 }
