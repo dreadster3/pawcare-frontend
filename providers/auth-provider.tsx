@@ -2,6 +2,7 @@ import { useStorageState } from "@/hooks/useStorageState";
 import {
   exchangeCodeAsync,
   makeRedirectUri,
+  Prompt,
   useAuthRequest,
   useAutoDiscovery,
 } from "expo-auth-session";
@@ -35,19 +36,36 @@ export function useSession() {
   return value;
 }
 
-export const SessionProvider = ({ children }: PropsWithChildren) => {
+export interface IAuthenticationConfiguration {
+  url: string;
+  clientId: string;
+}
+
+export interface ISessionProviderProps extends PropsWithChildren {
+  config: IAuthenticationConfiguration;
+}
+
+export const SessionProvider = ({
+  children,
+  config,
+}: ISessionProviderProps) => {
   const [[isLoading, session], setSession] = useStorageState("session");
 
-  const discovery = useAutoDiscovery("");
+  const discovery = useAutoDiscovery(config.url);
 
-  const redirectUri = makeRedirectUri({});
+  const redirectUri = makeRedirectUri({
+    isTripleSlashed: true,
+    path: "/",
+  });
 
   // Create and load an auth request
   const [request, result, promptAsync] = useAuthRequest(
     {
       clientId: "frontend",
       redirectUri,
-      scopes: ["openid", "profile", "email"],
+      scopes: ["openid", "profile", "email", "offline_access"],
+      usePKCE: true,
+      prompt: Prompt.Login,
     },
     discovery,
   );
@@ -59,7 +77,7 @@ export const SessionProvider = ({ children }: PropsWithChildren) => {
       const fetchToken = async () => {
         const tokenResponse = await exchangeCodeAsync(
           {
-            clientId: request?.clientId!,
+            clientId: config.clientId,
             code,
             redirectUri,
             extraParams: {

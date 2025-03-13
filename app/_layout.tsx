@@ -3,7 +3,12 @@ import { Slot } from "expo-router";
 
 export default function RootLayout() {
   return (
-    <SessionProvider>
+    <SessionProvider
+      config={{
+        url: "https://keycloak.dreadster.dev/realms/pawcare",
+        clientId: "frontend",
+      }}
+    >
       <Slot />
     </SessionProvider>
   );

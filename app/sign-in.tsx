@@ -1,7 +1,8 @@
 import { useSession } from "@/providers/auth-provider";
 import { Redirect, router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
-import { Button, View } from "react-native";
+import { useEffect } from "react";
+import { Button, Platform, View } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -11,6 +12,17 @@ export default function SignIn() {
   if (isAuthenticated) {
     return <Redirect href="/" />;
   }
+
+  useEffect(() => {
+    if (Platform.OS !== "web") {
+      WebBrowser.warmUpAsync();
+    }
+    return () => {
+      if (Platform.OS !== "web") {
+        WebBrowser.coolDownAsync();
+      }
+    };
+  }, []);
 
   return (
     <View
