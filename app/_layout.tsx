@@ -5,8 +5,8 @@ export default function RootLayout() {
   return (
     <SessionProvider
       config={{
-        url: "https://keycloak.dreadster.dev/realms/pawcare",
-        clientId: "frontend",
+        url: process.env.EXPO_PUBLIC_IDP_URL || "",
+        clientId: process.env.EXPO_PUBLIC_IDP_CLIENT_ID || "",
       }}
     >
       <Slot />
