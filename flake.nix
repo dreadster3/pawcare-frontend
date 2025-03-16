@@ -22,11 +22,12 @@
           ndkVersion = "26.1.10909125";
           buildToolsVersion = "35.0.0";
           androidComposition = pkgs.androidenv.composeAndroidPackages {
-            includeEmulator = false;
+            includeEmulator = true;
             includeNDK = true;
             platformVersions = [ "35" ];
             ndkVersions = [ ndkVersion ];
             buildToolsVersions = [ buildToolsVersion "34.0.0" ];
+            includeSystemImages = true;
             cmakeVersions = [ "3.22.1" ];
           };
           androidSdk = androidComposition.androidsdk;
@@ -59,6 +60,7 @@
             shellHook = ''
               export PNPM_HOME="$HOME/.local/share/pnpm"
               export PATH="$PNPM_HOME:$PATH"
+              export ANDROID_AVD_HOME="$XDG_CONFIG_HOME/.android/avd";
             '';
           };
 
