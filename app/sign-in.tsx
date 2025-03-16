@@ -1,8 +1,10 @@
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import { useSession } from "@/providers/auth-provider";
 import { Redirect, router } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
-import { Button, Platform, View } from "react-native";
+import { Platform, View } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
@@ -33,12 +35,13 @@ export default function SignIn() {
       }}
     >
       <Button
-        title="Login"
         onPress={() => {
           signIn();
           router.replace("/");
         }}
-      />
+      >
+        <Text>Sign in</Text>
+      </Button>
     </View>
   );
 }

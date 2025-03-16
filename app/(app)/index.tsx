@@ -1,18 +1,20 @@
+import { Button } from "@/components/ui/button";
+import { Text } from "@/components/ui/text";
 import { useSession } from "@/providers/auth-provider";
-import { Button, View } from "react-native";
+import { View } from "react-native";
 
 export default function Index() {
   const { signOut } = useSession();
 
   return (
-    <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+    <View>
       <Button
-        title="Sign Out"
         onPress={() => {
-          // The `app/(app)/_layout.tsx` will redirect to the sign-in screen.
           signOut();
         }}
-      />
+      >
+        <Text>Sign out</Text>
+      </Button>
     </View>
   );
 }
