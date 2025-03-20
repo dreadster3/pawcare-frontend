@@ -1,5 +1,6 @@
 import { useStorageState } from "@/hooks/useStorageState";
 import {
+  AuthSessionResult,
   exchangeCodeAsync,
   makeRedirectUri,
   Prompt,
@@ -9,7 +10,7 @@ import {
 import { createContext, PropsWithChildren, useContext, useEffect } from "react";
 
 interface IAuthContext {
-  signIn: () => void;
+  signInAsync: () => Promise<void>;
   signOut: () => void;
   session?: string | null;
   isLoading: boolean;
@@ -17,7 +18,7 @@ interface IAuthContext {
 }
 
 const AuthContext = createContext<IAuthContext>({
-  signIn: () => null,
+  signInAsync: () => Promise.resolve(),
   signOut: () => null,
   session: null,
   isLoading: false,
@@ -70,35 +71,33 @@ export const SessionProvider = ({
     discovery,
   );
 
-  useEffect(() => {
+  const fetchTokenAsync = async (result: AuthSessionResult | null) => {
     if (result?.type === "success") {
-      const { code } = result.params;
-
-      const fetchToken = async () => {
-        const tokenResponse = await exchangeCodeAsync(
-          {
-            clientId: config.clientId,
-            code,
-            redirectUri,
-            extraParams: {
-              code_verifier: request?.codeVerifier ?? "",
-            },
+      const tokenResponse = await exchangeCodeAsync(
+        {
+          clientId: config.clientId,
+          code: result.params.code,
+          redirectUri,
+          extraParams: {
+            code_verifier: request?.codeVerifier ?? "",
           },
-          discovery!,
-        );
+        },
+        discovery!,
+      );
 
-        setSession(tokenResponse.accessToken);
-      };
-
-      fetchToken();
+      setSession(tokenResponse.accessToken);
     }
+  };
+
+  useEffect(() => {
+    fetchTokenAsync(result);
   }, [result]);
 
   return (
     <AuthContext.Provider
       value={{
-        signIn: () => {
-          promptAsync();
+        signInAsync: async () => {
+          await promptAsync();
         },
         signOut: () => {
           setSession(null);

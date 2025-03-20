@@ -1,19 +1,16 @@
 import { Button } from "@/components/ui/button";
 import { Text } from "@/components/ui/text";
 import { useSession } from "@/providers/auth-provider";
-import { Redirect, router } from "expo-router";
+import { Redirect, useNavigation } from "expo-router";
 import * as WebBrowser from "expo-web-browser";
 import { useEffect } from "react";
-import { Platform, View } from "react-native";
+import { BackHandler, Platform, View } from "react-native";
 
 WebBrowser.maybeCompleteAuthSession();
 
 export default function SignIn() {
-  const { signIn, isAuthenticated } = useSession();
-
-  if (isAuthenticated) {
-    return <Redirect href="/" />;
-  }
+  const { signInAsync, isAuthenticated } = useSession();
+  const navigation = useNavigation();
 
   useEffect(() => {
     if (Platform.OS !== "web") {
@@ -26,6 +23,30 @@ export default function SignIn() {
     };
   }, []);
 
+  useEffect(() => {
+    const listener = navigation.addListener("beforeRemove", (e) => {
+      e.preventDefault();
+      navigation.dispatch(e.data.action);
+    });
+
+    const backHandlerListener = BackHandler.addEventListener(
+      "hardwareBackPress",
+      () => {
+        console.log("TEST");
+        return true;
+      },
+    );
+
+    return () => {
+      navigation.removeListener("beforeRemove", listener);
+      backHandlerListener.remove();
+    };
+  }, []);
+
+  if (isAuthenticated) {
+    return <Redirect href="/(app)" />;
+  }
+
   return (
     <View
       style={{
@@ -36,8 +57,7 @@ export default function SignIn() {
     >
       <Button
         onPress={() => {
-          signIn();
-          router.replace("/");
+          signInAsync();
         }}
       >
         <Text>Sign in</Text>
